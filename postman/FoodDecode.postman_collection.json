@@ -1,1 +1,319 @@
-
+{
+  "info": {
+    "name": "FoodDecode API",
+    "description": "MCA mini-project — every implemented backend endpoint. After Login/Register, `accessToken` and `refreshToken` are stored as collection variables.\n\nSeed users:\n- user@fooddecode.dev / Password@123 (USER)\n- admin@fooddecode.dev / Password@123 (ADMIN)\n\nSeed product id=1 Maggi, barcode 8901058851010. Ingredient id=2 Palm oil.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "accessToken", "value": "" },
+    { "key": "adminAccessToken", "value": "" },
+    { "key": "refreshToken", "value": "" },
+    { "key": "productId", "value": "1" },
+    { "key": "ingredientId", "value": "2" },
+    { "key": "barcode", "value": "8901058851010" },
+    { "key": "adminProductId", "value": "" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "if (pm.response.code === 201 || pm.response.code === 200) {",
+            "  const d = pm.response.json().data;",
+            "  if (d && d.accessToken) {",
+            "    pm.collectionVariables.set('accessToken', d.accessToken);",
+            "    pm.collectionVariables.set('refreshToken', d.refreshToken);",
+            "  }",
+            "}"
+          ], "type": "text/javascript" } }],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"fullName\": \"Smoke Tester\",\n  \"email\": \"smoke.tester@fooddecode.dev\",\n  \"password\": \"Password@123\"\n}" },
+            "url": "{{baseUrl}}/api/auth/register"
+          }
+        },
+        {
+          "name": "Login (user)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const d = pm.response.json().data;",
+            "if (d && d.accessToken) {",
+            "  pm.collectionVariables.set('accessToken', d.accessToken);",
+            "  pm.collectionVariables.set('refreshToken', d.refreshToken);",
+            "}"
+          ], "type": "text/javascript" } }],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"user@fooddecode.dev\",\n  \"password\": \"Password@123\"\n}" },
+            "url": "{{baseUrl}}/api/auth/login"
+          }
+        },
+        {
+          "name": "Login (admin)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const d = pm.response.json().data;",
+            "if (d && d.accessToken) {",
+            "  pm.collectionVariables.set('adminAccessToken', d.accessToken);",
+            "  pm.collectionVariables.set('accessToken', d.accessToken);",
+            "  pm.collectionVariables.set('refreshToken', d.refreshToken);",
+            "}"
+          ], "type": "text/javascript" } }],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"admin@fooddecode.dev\",\n  \"password\": \"Password@123\"\n}" },
+            "url": "{{baseUrl}}/api/auth/login"
+          }
+        },
+        {
+          "name": "Forgot password",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"user@fooddecode.dev\"\n}" },
+            "url": "{{baseUrl}}/api/auth/forgot-password"
+          }
+        },
+        {
+          "name": "Verify OTP",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"user@fooddecode.dev\",\n  \"otp\": \"123456\"\n}" },
+            "url": "{{baseUrl}}/api/auth/verify-otp"
+          }
+        },
+        {
+          "name": "Reset password",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"resetToken\": \"paste-from-verify-otp\",\n  \"newPassword\": \"Password@123\"\n}" },
+            "url": "{{baseUrl}}/api/auth/reset-password"
+          }
+        },
+        {
+          "name": "Refresh token",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}" },
+            "url": "{{baseUrl}}/api/auth/refresh-token"
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}" },
+            "url": "{{baseUrl}}/api/auth/logout"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "Search (query=Maggi)",
+          "request": { "auth": { "type": "noauth" }, "method": "GET", "url": "{{baseUrl}}/api/products/search?query=Maggi" }
+        },
+        {
+          "name": "Search (query=test, Open Food Facts fallback)",
+          "request": { "auth": { "type": "noauth" }, "method": "GET", "url": "{{baseUrl}}/api/products/search?query=test" }
+        },
+        {
+          "name": "Get by barcode (Maggi)",
+          "request": { "auth": { "type": "noauth" }, "method": "GET", "url": "{{baseUrl}}/api/products/barcode/{{barcode}}" }
+        },
+        {
+          "name": "Get by id",
+          "request": { "auth": { "type": "noauth" }, "method": "GET", "url": "{{baseUrl}}/api/products/{{productId}}" }
+        },
+        {
+          "name": "Ingredients",
+          "request": { "auth": { "type": "noauth" }, "method": "GET", "url": "{{baseUrl}}/api/products/{{productId}}/ingredients" }
+        },
+        {
+          "name": "Nutrition",
+          "request": { "auth": { "type": "noauth" }, "method": "GET", "url": "{{baseUrl}}/api/products/{{productId}}/nutrition" }
+        },
+        {
+          "name": "Compare Maggi vs Coke",
+          "request": { "auth": { "type": "noauth" }, "method": "GET", "url": "{{baseUrl}}/api/products/compare?ids=1,2" }
+        },
+        {
+          "name": "Healthier alternatives",
+          "request": { "auth": { "type": "noauth" }, "method": "GET", "url": "{{baseUrl}}/api/products/{{productId}}/alternatives" }
+        },
+        {
+          "name": "Scan image (stub — no OCR yet)",
+          "request": {
+            "method": "POST",
+            "body": { "mode": "formdata", "formdata": [{ "key": "file", "type": "file", "src": [] }] },
+            "url": "{{baseUrl}}/api/products/scan-image"
+          }
+        }
+      ]
+    },
+    {
+      "name": "AI",
+      "item": [
+        {
+          "name": "Ingredient explanation",
+          "request": { "auth": { "type": "noauth" }, "method": "GET", "url": "{{baseUrl}}/api/ingredients/{{ingredientId}}/explanation?lang=en" }
+        },
+        {
+          "name": "Translate",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"text\": \"Palm oil is a cheap cooking fat used in many packaged snacks.\",\n  \"targetLanguage\": \"hi\"\n}" },
+            "url": "{{baseUrl}}/api/ai/translate"
+          }
+        },
+        {
+          "name": "Summarize product",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"productId\": 1\n}" },
+            "url": "{{baseUrl}}/api/ai/summarize"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Profile",
+      "item": [
+        { "name": "Get me", "request": { "method": "GET", "url": "{{baseUrl}}/api/users/me" } },
+        {
+          "name": "Update profile",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"fullName\": \"Nikisha Gupta\",\n  \"preferredLanguage\": \"en\"\n}" },
+            "url": "{{baseUrl}}/api/users/me"
+          }
+        },
+        {
+          "name": "Change password",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"currentPassword\": \"Password@123\",\n  \"newPassword\": \"Password@123\"\n}" },
+            "url": "{{baseUrl}}/api/users/me/password"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Favorites",
+      "item": [
+        { "name": "List my favorites", "request": { "method": "GET", "url": "{{baseUrl}}/api/users/me/favorites" } },
+        {
+          "name": "Add favorite",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"productId\": 1\n}" },
+            "url": "{{baseUrl}}/api/favorites"
+          }
+        },
+        { "name": "Remove favorite", "request": { "method": "DELETE", "url": "{{baseUrl}}/api/favorites/1" } }
+      ]
+    },
+    {
+      "name": "Scan history",
+      "item": [
+        { "name": "List my history", "request": { "method": "GET", "url": "{{baseUrl}}/api/users/me/history?page=0&size=10" } },
+        {
+          "name": "Log a scan",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"productId\": 1,\n  \"scanMethod\": \"SEARCH\"\n}" },
+            "url": "{{baseUrl}}/api/scan-history"
+          }
+        },
+        { "name": "Delete scan", "request": { "method": "DELETE", "url": "{{baseUrl}}/api/scan-history/1" } }
+      ]
+    },
+    {
+      "name": "Admin",
+      "auth": {
+        "type": "bearer",
+        "bearer": [{ "key": "token", "value": "{{adminAccessToken}}", "type": "string" }]
+      },
+      "item": [
+        { "name": "List products", "request": { "method": "GET", "url": "{{baseUrl}}/api/admin/products" } },
+        { "name": "List ingredients", "request": { "method": "GET", "url": "{{baseUrl}}/api/admin/ingredients" } },
+        { "name": "Analytics", "request": { "method": "GET", "url": "{{baseUrl}}/api/admin/analytics" } },
+        {
+          "name": "Create product",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "if (pm.response.code === 201 || pm.response.code === 200) {",
+            "  const d = pm.response.json().data;",
+            "  if (d && d.id) pm.collectionVariables.set('adminProductId', String(d.id));",
+            "}"
+          ], "type": "text/javascript" } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"barcode\": \"8900000000999\",\n  \"name\": \"Admin Test Oats\",\n  \"brand\": \"FoodDecode\",\n  \"category\": \"breakfast_cereal\",\n  \"imageUrl\": null\n}" },
+            "url": "{{baseUrl}}/api/admin/products"
+          }
+        },
+        {
+          "name": "Update product",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"barcode\": \"8900000000999\",\n  \"name\": \"Admin Test Oats (updated)\",\n  \"brand\": \"FoodDecode\",\n  \"category\": \"breakfast_cereal\",\n  \"imageUrl\": null\n}" },
+            "url": "{{baseUrl}}/api/admin/products/{{adminProductId}}"
+          }
+        },
+        {
+          "name": "Delete product",
+          "request": { "method": "DELETE", "url": "{{baseUrl}}/api/admin/products/{{adminProductId}}" }
+        },
+        {
+          "name": "Create ingredient",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Stevia extract\",\n  \"harmful\": false,\n  \"harmCategory\": null\n}" },
+            "url": "{{baseUrl}}/api/admin/ingredients"
+          }
+        },
+        {
+          "name": "Update ingredient (Palm oil)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Palm oil\",\n  \"harmful\": true,\n  \"harmCategory\": \"trans_fat\"\n}" },
+            "url": "{{baseUrl}}/api/admin/ingredients/2"
+          }
+        }
+      ]
+    }
+  ]
+}
