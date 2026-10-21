@@ -1,0 +1,77 @@
+package com.fooddecode.mapper;
+
+import com.fooddecode.dto.product.IngredientItemResponse;
+import com.fooddecode.dto.product.NutritionFactsResponse;
+import com.fooddecode.dto.product.ProductDetailResponse;
+import com.fooddecode.dto.product.ProductSummaryResponse;
+import com.fooddecode.entity.NutritionFacts;
+import com.fooddecode.entity.Product;
+import com.fooddecode.entity.ProductIngredient;
+import java.util.Comparator;
+import java.util.List;
+
+public final class ProductMapper {
+
+    private ProductMapper() {}
+
+    public static ProductSummaryResponse toSummary(Product product) {
+        return ProductSummaryResponse.builder()
+                .id(product.getId())
+                .barcode(product.getBarcode())
+                .name(product.getName())
+                .brand(product.getBrand())
+                .category(com.fooddecode.service.CategoryTaxonomy.canonical(
+                        product.getName(), product.getBrand(), product.getCategory()))
+                .imageUrl(product.getImageUrl())
+                .healthScore(product.getHealthScore())
+                .recalled(product.isRecalled())
+                .recallReason(product.getRecallReason())
+                .purchaseUrl(product.getPurchaseUrl())
+                .build();
+    }
+
+    public static ProductDetailResponse toDetail(Product product, List<ProductIngredient> links, NutritionFacts nutrition) {
+        List<IngredientItemResponse> ingredients = links.stream()
+                .sorted(Comparator.comparing(pi -> pi.getPositionInList() == null ? 0 : pi.getPositionInList()))
+                .map(pi -> IngredientItemResponse.builder()
+                        .id(pi.getIngredient().getId())
+                        .name(pi.getIngredient().getName())
+                        .harmful(pi.getIngredient().isHarmful())
+                        .harmCategory(pi.getIngredient().getHarmCategory())
+                        .positionInList(pi.getPositionInList())
+                        .build())
+                .toList();
+        return ProductDetailResponse.builder()
+                .id(product.getId())
+                .barcode(product.getBarcode())
+                .name(product.getName())
+                .brand(product.getBrand())
+                .category(com.fooddecode.service.CategoryTaxonomy.canonical(
+                        product.getName(), product.getBrand(), product.getCategory()))
+                .imageUrl(product.getImageUrl())
+                .source(product.getSource().name())
+                .healthScore(product.getHealthScore())
+                .ingredients(ingredients)
+                .nutrition(toNutrition(nutrition))
+                .recalled(product.isRecalled())
+                .recallReason(product.getRecallReason())
+                .purchaseUrl(product.getPurchaseUrl())
+                .build();
+    }
+
+    public static NutritionFactsResponse toNutrition(NutritionFacts nutrition) {
+        if (nutrition == null) {
+            return null;
+        }
+        return NutritionFactsResponse.builder()
+                .calories(nutrition.getCalories())
+                .proteinG(nutrition.getProteinG())
+                .carbsG(nutrition.getCarbsG())
+                .fatsG(nutrition.getFatsG())
+                .sugarG(nutrition.getSugarG())
+                .sodiumMg(nutrition.getSodiumMg())
+                .fibreG(nutrition.getFibreG())
+                .servingSize(nutrition.getServingSize())
+                .build();
+    }
+}
