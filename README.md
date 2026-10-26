@@ -109,3 +109,11 @@ npm run dev
 Vite serves `http://localhost:5173` and proxies `/api` to `http://localhost:8080`. Keep the backend running.
 
 Seed UI logins: `user@fooddecode.dev` / `Password@123` and `admin@fooddecode.dev` / `Password@123`.
+
+## Team Members
+Nikisha Gupta 
+Ayushi  Rathore
+Harshana Yadav
+Shreeya Lavande
+Sakshi Keware 
+
